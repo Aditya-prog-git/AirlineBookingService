@@ -73,6 +73,62 @@ src/
 
 ---
 
+---
+
+## 🗄 Database UML Diagram
+
+```mermaid
+classDiagram
+
+class City {
+  +id
+  +name
+}
+
+class Airport {
+  +id
+  +name
+  +code
+  +address
+  +cityId
+}
+
+class Airplane {
+  +id
+  +modelNumber
+  +capacity
+}
+
+class Flight {
+  +id
+  +flightNumber
+  +airplaneId
+  +departureAirportId
+  +arrivalAirportId
+  +departureTime
+  +arrivalTime
+  +price
+  +boardingGate
+  +totalSeats
+}
+
+class Seat {
+  +id
+  +airplaneId
+  +row
+  +col
+  +type
+}
+
+City "1" --> "*" Airport : has
+Flight "*" --> "1" Airport : departsFrom
+Flight "*" --> "1" Airport : arrivesAt
+Airplane "1" --> "*" Flight : usedFor
+Airplane "1" --> "*" Seat : contains
+```
+
+---
+
 ## Setup Instructions
 
 ### 1. Install Dependencies
