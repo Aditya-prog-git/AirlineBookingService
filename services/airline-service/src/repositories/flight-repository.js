@@ -63,8 +63,8 @@ class FlightRepository extends CrudRepository {
 
     const shouldDecrement =
       dec === undefined ||
-      value === '0' ||
-      value === 'false';
+      value === '1' ||
+      value === 'true';
 
     if (shouldDecrement) {
       await flight.decrement('totalSeats', { by: seats });
