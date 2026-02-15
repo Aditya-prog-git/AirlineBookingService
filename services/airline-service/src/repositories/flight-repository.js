@@ -50,29 +50,35 @@ class FlightRepository extends CrudRepository {
   }
 
   async updateRemainingSeats(flightId, seats, dec) {
-    //This is for having row lock on table column, pessimitic locking
-    await db.sequelize.query( addRowLockOnFlights(flightId) );
-    const flight = await Flight.findByPk(flightId);
+    const transaction = await db.sequelize.transaction();
+    try {
+      //This is for having row lock on table column, pessimitic locking
+      await db.sequelize.query( addRowLockOnFlights(flightId) );
+      const flight = await Flight.findByPk(flightId);
 
-    if (!flight) {
-      throw new Error("Flight not found");
+      if (!flight) {
+        throw new Error("Flight not found");
+      }
+
+      // normalize value to string for consistent comparison
+      const value = String(dec).toLowerCase();
+
+      const shouldDecrement =
+        dec === undefined ||
+        value === '1' ||
+        value === 'true';
+
+      if (shouldDecrement) {
+        await flight.decrement('totalSeats', { by: seats }, {transaction: transaction});
+      } else {
+        await flight.increment('totalSeats', { by: seats }, {transaction: transaction});
+      }
+      await transaction.commit();
+      return flight;
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
     }
-
-    // normalize value to string for consistent comparison
-    const value = String(dec).toLowerCase();
-
-    const shouldDecrement =
-      dec === undefined ||
-      value === '1' ||
-      value === 'true';
-
-    if (shouldDecrement) {
-      await flight.decrement('totalSeats', { by: seats });
-    } else {
-      await flight.increment('totalSeats', { by: seats });
-    }
-
-    return flight;
   }
 
 }
