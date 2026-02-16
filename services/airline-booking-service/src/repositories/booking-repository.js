@@ -10,6 +10,33 @@ class BookingRepository extends CrudRepository {
     const response = await Booking.create(data, {transaction: transaction});
     return response;
   }
+
+  async get(data, transaction){
+    try {
+      const response = await this.model.findByPk(data, {transaction: transaction});
+      if(!response) {
+        throw new AppError('Not able to find the resource', StatusCodes.NOT_FOUND);
+      }
+      return response;
+    } catch (error) {
+      Logger.error('Something went wrong in the booking Repo : get');
+      throw error;
+    }
+  }
+
+  async update(id, data, transaction){
+    try {
+      const response = await this.model.update(data, {
+        where: {
+          id: id
+        }
+      }, {transaction: transaction});
+      return response;
+    } catch (error) {
+      Logger.error('Something went wrong in the booking Repo : update');
+      throw error;
+    }
+  }
 }
 
 module.exports = BookingRepository;
